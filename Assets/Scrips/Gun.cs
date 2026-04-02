@@ -38,21 +38,25 @@ public class Gun : MonoBehaviour
 
         if (firesound != null)
             audioSource.PlayOneShot(firesound);
-        Ray ray = new Ray(firePoint.position, transform.root.forward);
+
+        Vector3 shootDirection = transform.root.forward;  
+        Ray ray = new Ray(firePoint.position, shootDirection);
         Vector3 endPoint;
 
         if (Physics.Raycast(ray, out RaycastHit hit, range))
         {
             Debug.Log("맞음: " + hit.collider.name);
             endPoint = hit.point;
+
+            var enemy = hit.collider.GetComponentInParent<EnemyAI>();
+            if (enemy != null)
+                enemy.TakeDamage(damage, hit.point, hit.normal);
         }
         else
         {
-            // 아무것도 안맞으면 최대 사거리까지
-            endPoint = firePoint.position + firePoint.forward * range;
+            endPoint = firePoint.position + shootDirection * range;  
         }
 
-        // LineRenderer 궤적 표시
         StartCoroutine(ShowLine(firePoint.position, endPoint));
     }
 
