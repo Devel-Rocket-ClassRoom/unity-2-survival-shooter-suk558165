@@ -10,9 +10,9 @@ public class EnemyAI : MonoBehaviour
     public float attackInterval = 0.5f;
     public AmenyData data;
     public float collisionDamage = 10f;
-    public float collisionInterval = 1f;  
-    public ParticleSystem hitParticle;   
-    public AudioClip hitSound;           
+    public float collisionInterval = 1f;
+    public ParticleSystem hitParticle;
+    public AudioClip hitSound;
     public AudioClip deathSound;
     public float maxHealth = 100f;
 
@@ -32,7 +32,7 @@ public class EnemyAI : MonoBehaviour
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
     }
-       private void Start()
+    private void Start()
     {
         currentHealth = maxHealth;
         currentStatus = Status.Idle;
@@ -41,6 +41,8 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
+        if (isDead) return;
+
         switch (currentStatus)
         {
             case Status.Idle: UpdateIdle(); break;
@@ -87,6 +89,8 @@ public class EnemyAI : MonoBehaviour
 
     private void UpdateTrace()
     {
+
+
         if (target == null)
         {
             currentStatus = Status.Idle;
@@ -172,7 +176,6 @@ public class EnemyAI : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
-        // SetBool 아닌 SetTrigger 사용!
         if (animator != null && animator.runtimeAnimatorController != null)
             animator.SetTrigger("Die");
 
@@ -180,8 +183,29 @@ public class EnemyAI : MonoBehaviour
             audioSource.PlayOneShot(deathSound);
 
         agent.isStopped = true;
-        SpawnManager.totalKills++;
-        Destroy(gameObject, 2f);
+        agent.enabled = false; // ← NavMesh 오류 방지
+        SpawnManager.AddKill();
+        
     }
 
+    public void StartSinking()
+    {
+        // 콜라이더 끄기 (플레이어와 충돌 방지)
+        GetComponent<Collider>().enabled = false;
+        isSinking = true;
+    }
+
+    private bool isSinking = false;
+    public float sinkSpeed = 1f;
+
+
+
+    private void LateUpdate()
+    {
+        if (isSinking)
+        {
+            transform.Translate(Vector3.down * sinkSpeed * Time.deltaTime);
+            Destroy(gameObject, 2f);
+        }
+    }
 }

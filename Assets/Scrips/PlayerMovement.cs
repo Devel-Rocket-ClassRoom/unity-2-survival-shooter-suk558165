@@ -27,6 +27,13 @@ public class PlayerMovement : MonoBehaviour
         playerrigid.MovePosition(playerrigid.position + moveInput * moveSpeed * Time.fixedDeltaTime);
     }
 
+    // 비활성화 시 즉시 정지
+    private void OnDisable()
+    {
+        moveInput = Vector3.zero;
+        animator.SetBool("isMoving", false);
+    }
+
     private void LookAtMouse()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

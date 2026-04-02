@@ -60,4 +60,9 @@ public class SpawnManager : MonoBehaviour
         if (enemyAI != null)
             enemyAI.target = GameObject.FindWithTag("Player").transform;
     }
+    public static void AddKill()
+    {
+        totalKills++;
+        UIManager.Instance.UpdateScore(totalKills);
+    }
 }
