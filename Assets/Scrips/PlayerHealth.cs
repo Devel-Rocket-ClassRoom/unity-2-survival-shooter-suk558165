@@ -25,7 +25,7 @@ public class PlayerHealth : LivingEntity
     public override void OnDamage(float damage, Vector3 hitPoint, Vector3 hitNormal)
     {
         base.OnDamage(damage, hitPoint, hitNormal);
-        UIManager.Instance.UpdateHealth(health, startingHealth);
+        UiManager.Instance.UpdateHealth(health, startingHealth);
 
         // 피격 효과음
         if (hitSound != null)
@@ -76,6 +76,6 @@ public class PlayerHealth : LivingEntity
         rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
 
-        UIManager.Instance.ShowGameOver();
+        UiManager.Instance.ShowGameOver();
     }
 }

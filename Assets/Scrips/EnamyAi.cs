@@ -25,6 +25,8 @@ public class EnemyAI : MonoBehaviour
     private Status currentStatus;
     private bool isDead;
     private AudioSource audioSource;
+    private bool isSinking = false;
+    public float sinkSpeed = 1f;
 
     private void Awake()
     {
@@ -68,10 +70,8 @@ public class EnemyAI : MonoBehaviour
     {
         if (isDead) return;
 
-        // 체력 감소
         currentHealth -= damage;
 
-        // 피격 파티클
         if (hitParticle != null)
         {
             hitParticle.transform.position = hitPoint;
@@ -79,11 +79,9 @@ public class EnemyAI : MonoBehaviour
             hitParticle.Play();
         }
 
-        // 피격 효과음 (수정: AudioManager의 effectsSource 사용)
         if (hitSound != null && AudioManager.Instance != null && AudioManager.Instance.effectsSource != null)
             AudioManager.Instance.effectsSource.PlayOneShot(hitSound);
 
-        // 체력 0 이하면 사망
         if (currentHealth <= 0)
             Die();
     }
@@ -149,7 +147,6 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    // 충돌 데미지
     private void OnCollisionStay(Collision collision)
     {
         if (Time.time < lastCollisionTime + collisionInterval) return;
@@ -178,25 +175,25 @@ public class EnemyAI : MonoBehaviour
         if (animator != null && animator.runtimeAnimatorController != null)
             animator.SetTrigger("Die");
 
-        // 사망 효과음 (수정: AudioManager의 effectsSource 사용)
         if (deathSound != null && AudioManager.Instance != null && AudioManager.Instance.effectsSource != null)
             AudioManager.Instance.effectsSource.PlayOneShot(deathSound);
 
         agent.isStopped = true;
-        agent.enabled = false; // ← NavMesh 오류 방지
-        SpawnManager.totalKills++; // SpawnManager 변수에 맞춰 수정
+        agent.enabled = false;
 
+        // 점수 및 킬 카운트 갱신
+        SpawnManager.totalKills++;
+        if (UiManager.Instance != null)
+        {
+            UiManager.Instance.AddScore(10); // 마리당 10점 추가
+        }
     }
 
     public void StartSinking()
     {
-        // 콜라이더 끄기 (플레이어와 충돌 방지)
         GetComponent<Collider>().enabled = false;
         isSinking = true;
     }
-
-    private bool isSinking = false;
-    public float sinkSpeed = 1f;
 
     private void LateUpdate()
     {

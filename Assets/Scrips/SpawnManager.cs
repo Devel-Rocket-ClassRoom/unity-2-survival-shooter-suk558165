@@ -63,6 +63,6 @@ public class SpawnManager : MonoBehaviour
     public static void AddKill()
     {
         totalKills++;
-        UIManager.Instance.UpdateScore(totalKills);
+        UiManager.Instance.UpdateScore(totalKills);
     }
 }

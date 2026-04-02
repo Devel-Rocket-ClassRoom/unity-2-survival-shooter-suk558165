@@ -36,14 +36,24 @@ public class PlayerMovement : MonoBehaviour
 
     private void LookAtMouse()
     {
+        // 스크립트가 비활성화(Pause 상황 등)되어 있으면 회전하지 않음
+        if (!this.enabled) return;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Plane groundPlane = new Plane(Vector3.up, transform.position);
 
         if (groundPlane.Raycast(ray, out float distance))
         {
             Vector3 lookPoint = ray.GetPoint(distance);
-            lookPoint.y = transform.position.y;
-            transform.LookAt(lookPoint);
+
+            // 캐릭터의 높이와 맞추어 바닥만 바라보게 함 (기울어짐 방지)
+            Vector3 heightCorrectedPoint = new Vector3(lookPoint.x, transform.position.y, lookPoint.z);
+
+            // 거리가 너무 가까우면 회전이 튀므로 최소 거리 체크
+            if (Vector3.Distance(transform.position, heightCorrectedPoint) > 0.1f)
+            {
+                transform.LookAt(heightCorrectedPoint);
+            }
         }
     }
 }

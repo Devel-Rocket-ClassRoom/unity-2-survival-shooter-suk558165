@@ -123,6 +123,7 @@ MonoBehaviour:
   hitSound: {fileID: 8300000, guid: fce027b40770a44298a6f5a4233bfb04, type: 3}
   deathSound: {fileID: 8300000, guid: 8c615fd0429f34edf85539d70279360d, type: 3}
   maxHealth: 200
+  sinkSpeed: 1
 --- !u!136 &-7896419852097160712
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -142,10 +143,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1.3801758
-  m_Height: 2.7603517
+  m_Radius: 1.1035783
+  m_Height: 3.3205512
   m_Direction: 1
-  m_Center: {x: 0.26810145, y: 0.8478415, z: 0.6120744}
+  m_Center: {x: 0.26810145, y: 0.8478414, z: -0.22472262}
 --- !u!82 &8326295820600479887
 AudioSource:
   m_ObjectHideFlags: 0
