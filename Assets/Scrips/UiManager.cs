@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System;
 
 public class UIManager : MonoBehaviour
 {
@@ -12,14 +13,8 @@ public class UIManager : MonoBehaviour
     [Header("Score UI")]
     public TextMeshProUGUI scoreText;
 
-    [Header("Health UI")]
-    public Slider healthSlider; // 플레이어 체력바 (추가됨)
-
-    [Header("Panels")]
-    public GameObject pausePanel;
-    public GameObject gameOverPanel; // 게임 오버 패널 (추가됨)
-
     [Header("Pause UI Elements")]
+    public GameObject pausePanel;
     public Slider musicSlider;
     public Slider effectsSlider;
     public Toggle soundToggle;
@@ -38,8 +33,6 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         pausePanel.SetActive(false);
-        if (gameOverPanel != null) gameOverPanel.SetActive(false);
-
         UpdateScore(0);
 
         // 이벤트 리스너 연결
@@ -50,7 +43,7 @@ public class UIManager : MonoBehaviour
         if (resumeButton != null) resumeButton.onClick.AddListener(Resume);
         if (quitButton != null) quitButton.onClick.AddListener(QuitGame);
 
-        // 초기 볼륨값 반영
+        // 초기 볼륨 설정 반영
         if (AudioManager.Instance != null)
         {
             if (musicSlider != null) musicSlider.value = AudioManager.Instance.musicSource.volume;
@@ -67,49 +60,58 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // --- PlayerHealth 및 SpawnManager에서 호출하는 함수들 ---
-
+    // 점수 업데이트
     public void UpdateScore(int score)
     {
         if (scoreText != null) scoreText.text = $"SCORE: {score}";
     }
 
-    // 플레이어 체력 UI 업데이트 (추가됨)
-    public void UpdateHealth(float currentHealth, float maxHealth)
-    {
-        if (healthSlider != null)
-        {
-            healthSlider.value = currentHealth / maxHealth;
-        }
-    }
-
-    // 게임 오버 UI 표시 (추가됨)
-    public void ShowGameOver()
-    {
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(true);
-        }
-    }
-
+    // 일시정지
     public void Pause()
     {
         isPaused = true;
         pausePanel.SetActive(true);
         Time.timeScale = 0f;
+
+        // 마우스 커서 활성화 (메뉴 클릭용)
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        // 플레이어 조작 차단 (총 발사 및 회전 멈춤)
+        SetPlayerControl(false);
     }
 
+    // 재개
     public void Resume()
     {
         isPaused = false;
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
+
+        // 마우스 커서 다시 숨기기 (게임 플레이용)
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
+        // 플레이어 조작 다시 활성화
+        SetPlayerControl(true);
     }
 
-    public void RestartGame() // 재시작 버튼용 (필요 시 UI 버튼에 연결)
+    // 플레이어 스크립트 제어 함수
+    private void SetPlayerControl(bool state)
     {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            // 1. 입력 스크립트 차단 (클릭 시 총 발사 버그 수정)
+            var input = player.GetComponent<PlayerInput>();
+            if (input != null) input.enabled = state;
+
+            // 2. 이동 및 회전 스크립트 차단 (마우스 회전 멈춤)
+            var movement = player.GetComponent<PlayerMovement>();
+            if (movement != null) movement.enabled = state;
+
+    
+        }
     }
 
     public void QuitGame()
@@ -137,5 +139,10 @@ public class UIManager : MonoBehaviour
     {
         if (AudioManager.Instance != null)
             AudioManager.Instance.SetSoundOnOff(isOn);
+    }
+
+    internal void UpdateHealth(float health, float startingHealth)
+    {
+        throw new NotImplementedException();
     }
 }

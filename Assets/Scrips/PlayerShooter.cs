@@ -13,7 +13,7 @@ public class PlayerShooter : MonoBehaviour
 
     private void Update()
     {
-        // 나중에 총 붙이면 주석 해제
-        // if (playerInput.Fire) gun.Fire();
+
+        
     }
 }

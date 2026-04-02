@@ -36,8 +36,10 @@ public class Gun : MonoBehaviour
         if (muzzleFlash != null)
             muzzleFlash.Play();
 
-        if (firesound != null)
-            audioSource.PlayOneShot(firesound);
+        if (firesound != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.effectsSource.PlayOneShot(firesound);
+        }
 
         Vector3 shootDirection = transform.root.forward;  
         Ray ray = new Ray(firePoint.position, shootDirection);
@@ -45,7 +47,6 @@ public class Gun : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, range))
         {
-            Debug.Log("맞음: " + hit.collider.name);
             endPoint = hit.point;
 
             var enemy = hit.collider.GetComponentInParent<EnemyAI>();

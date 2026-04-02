@@ -32,12 +32,12 @@ public class EnemyAI : MonoBehaviour
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
     }
+
     private void Start()
     {
         currentHealth = maxHealth;
         currentStatus = Status.Idle;
     }
-
 
     private void Update()
     {
@@ -63,6 +63,7 @@ public class EnemyAI : MonoBehaviour
             agent.isStopped = false;
         }
     }
+
     public void TakeDamage(float damage, Vector3 hitPoint, Vector3 hitNormal)
     {
         if (isDead) return;
@@ -78,9 +79,9 @@ public class EnemyAI : MonoBehaviour
             hitParticle.Play();
         }
 
-        // 피격 효과음
-        if (hitSound != null)
-            audioSource.PlayOneShot(hitSound);
+        // 피격 효과음 (수정: AudioManager의 effectsSource 사용)
+        if (hitSound != null && AudioManager.Instance != null && AudioManager.Instance.effectsSource != null)
+            AudioManager.Instance.effectsSource.PlayOneShot(hitSound);
 
         // 체력 0 이하면 사망
         if (currentHealth <= 0)
@@ -89,8 +90,6 @@ public class EnemyAI : MonoBehaviour
 
     private void UpdateTrace()
     {
-
-
         if (target == null)
         {
             currentStatus = Status.Idle;
@@ -179,13 +178,14 @@ public class EnemyAI : MonoBehaviour
         if (animator != null && animator.runtimeAnimatorController != null)
             animator.SetTrigger("Die");
 
-        if (deathSound != null)
-            audioSource.PlayOneShot(deathSound);
+        // 사망 효과음 (수정: AudioManager의 effectsSource 사용)
+        if (deathSound != null && AudioManager.Instance != null && AudioManager.Instance.effectsSource != null)
+            AudioManager.Instance.effectsSource.PlayOneShot(deathSound);
 
         agent.isStopped = true;
         agent.enabled = false; // ← NavMesh 오류 방지
-        SpawnManager.AddKill();
-        
+        SpawnManager.totalKills++; // SpawnManager 변수에 맞춰 수정
+
     }
 
     public void StartSinking()
@@ -197,8 +197,6 @@ public class EnemyAI : MonoBehaviour
 
     private bool isSinking = false;
     public float sinkSpeed = 1f;
-
-
 
     private void LateUpdate()
     {
